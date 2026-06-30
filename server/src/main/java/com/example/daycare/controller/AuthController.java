@@ -22,6 +22,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /** Registers a new account; role is selected by the client and persisted on the user record. */
     @PostMapping("/register")
     public ResponseEntity<NannyDto> register(@Valid @RequestBody RegisterRequest request) {
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);

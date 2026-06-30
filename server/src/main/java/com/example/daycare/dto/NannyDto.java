@@ -1,5 +1,6 @@
 package com.example.daycare.dto;
 
+import com.example.daycare.model.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,4 +11,5 @@ public class NannyDto {
     private String name;
     private String phone;
     private String email;
+    private UserRole role;
 }

@@ -38,6 +38,7 @@ public class NannyService {
         nanny.setPhone(request.getPhone());
         nanny.setEmail(email);
         nanny.setPassword(passwordEncoder.encode(request.getPassword()));
+        nanny.setRole(request.getRole());
 
         return mapper.toNannyDto(nannyRepository.save(nanny));
     }

@@ -3,6 +3,8 @@ package com.example.daycare.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +28,10 @@ public class Nanny implements UserDetails {
     @JsonIgnore
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.NANNIE;
 
     public Integer getIdNanny() {
         return idNanny;
@@ -59,13 +65,21 @@ public class Nanny implements UserDetails {
         this.email = email;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_NANNY"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
