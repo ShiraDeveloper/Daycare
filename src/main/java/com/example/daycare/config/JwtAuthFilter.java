@@ -1,15 +1,15 @@
 package com.example.daycare.config;
-import com.example.daycare.Repository.NannyRepository;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.tomcat.util.http.parser.Authorization;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,43 +19,46 @@ import java.io.IOException;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter{
-    @Autowired
-    private  final  JwtUtil jwtUtil;
-    @Autowired
-    private final NannyRepository nannyRepository;
+public class JwtAuthFilter extends OncePerRequestFilter {
 
-    public JwtAuthFilter(JwtUtil jwtUtil,NannyRepository nannyRepository) {
+    private static final String BEARER_PREFIX = "Bearer ";
+
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
-        this.nannyRepository=nannyRepository;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader(AUTHORIZATION);
-        String email;
-        String jwtToken;
-        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        final String authHeader = request.getHeader(AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
-        jwtToken=authHeader.substring(7);
-        email=jwtUtil.extractUserName(jwtToken);
-        if(email!=null && SecurityContextHolder.getContext().getAuthentication()==null)
-        {
 
-            UserDetails userDetails= nannyRepository.findByEmail(email);
-            if(jwtUtil.isTokenValid(jwtToken,userDetails))
-            {
-                UsernamePasswordAuthenticationToken authToken=
-                        new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+        final String jwtToken = authHeader.substring(BEARER_PREFIX.length());
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            final String email = jwtUtil.extractUserName(jwtToken);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if (jwtUtil.isTokenValid(jwtToken, userDetails)) {
+                    final UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (UsernameNotFoundException | io.jsonwebtoken.JwtException | IllegalArgumentException ex) {
+            SecurityContextHolder.clearContext();
         }
 
-        filterChain.doFilter(request,response);
-
+        filterChain.doFilter(request, response);
     }
 }
