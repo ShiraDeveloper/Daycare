@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/auth/**").permitAll();
+                    // Parent confirmation links are reached without authentication.
+                    auth.requestMatchers("/api/public/**").permitAll();
                     if (devProfileActive) {
                         // H2 console is only reachable under the "dev" profile.
                         auth.requestMatchers(PathRequest.toH2Console()).permitAll();
