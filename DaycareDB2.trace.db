@@ -974,3 +974,9 @@ Caused by: java.lang.IllegalArgumentException: 01/
 	at org.h2.util.DateTimeUtils.parseDateValue(DateTimeUtils.java:187)
 	at org.h2.value.ValueDate.parse(ValueDate.java:51)
 	... 55 more
+2026-06-30 16:10:41.147367+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create global temporary table HTE_dairy(date date, doing tinyint, [*]hour time(6), id_dairy integer, rn_ integer not null, images varchar(255), remark varchar(255), primary key (rn_)) TRANSACTIONAL"; expected "identifier"; SQL statement:
+create global temporary table HTE_dairy(date date, doing tinyint, hour time(6), id_dairy integer, rn_ integer not null, images varchar(255), remark varchar(255), primary key (rn_)) TRANSACTIONAL [42001-232]
+2026-06-30 16:10:42.036793+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table dairy (id_dairy integer not null, date date, doing tinyint check (doing between 0 and 4), [*]hour time(6), images varchar(255), remark varchar(255), primary key (id_dairy))"; expected "identifier"; SQL statement:
+create table dairy (id_dairy integer not null, date date, doing tinyint check (doing between 0 and 4), hour time(6), images varchar(255), remark varchar(255), primary key (id_dairy)) [42001-232]

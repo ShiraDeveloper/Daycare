@@ -38,13 +38,13 @@ public class DairyDto {
         this.hour = hour;
     }
 
-//    public eDo getDoing() {
-//        return doing;
-//    }
-//
-//    public void setDoing(eDo doing) {
-//        this.doing = doing;
-//    }
+    public eDo getDoing() {
+        return doing;
+    }
+
+    public void setDoing(eDo doing) {
+        this.doing = doing;
+    }
 
     public String getRemark() {
         return remark;

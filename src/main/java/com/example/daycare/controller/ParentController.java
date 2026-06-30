@@ -1,41 +1,35 @@
 package com.example.daycare.controller;
 
 import com.example.daycare.Dto.ParentDto;
-import com.example.daycare.Repository.ParentRepository;
-import com.example.daycare.Service.MapStructMapper;
-import com.example.daycare.model.Child;
-import com.example.daycare.model.Parent;
-import org.springframework.web.bind.annotation.*;
+import com.example.daycare.Service.ParentService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/Parent")
+@RequestMapping("/api/Parent")
 public class ParentController {
-    private final ParentRepository parentRepository;
-    private  final MapStructMapper mapStructImp;
 
-    public ParentController(ParentRepository parentRepository,MapStructMapper mapper) {
+    private final ParentService parentService;
 
-        this.parentRepository = parentRepository;
-        this.mapStructImp=mapper;
+    public ParentController(ParentService parentService) {
+        this.parentService = parentService;
     }
+
     @GetMapping("/getAll")
-    public List<Parent> getAll(){
-        return parentRepository.findAll();
+    public List<ParentDto> getAll() {
+        return parentService.getAll();
     }
-    @GetMapping("/getAllDto")
-    public List<ParentDto> getAllDto(){
-        return mapStructImp.toListParentDto(parentRepository.findAll());
-    }
+
     @PostMapping("/addParent")
-    public Parent addParent(@RequestBody Parent parent){
-        //Child newChild= childRepository.save(child);
-        return  parentRepository.save(parent);
-    }
-    @PostMapping("/addParentDto")
-    public ParentDto addParentDto(@RequestBody Parent parent){
-        //Child newChild= childRepository.save(child);
-        return mapStructImp.toParentDto(parentRepository.save(parent));
+    public ResponseEntity<ParentDto> addParent(@Valid @RequestBody ParentDto parentDto) {
+        return new ResponseEntity<>(parentService.add(parentDto), HttpStatus.CREATED);
     }
 }

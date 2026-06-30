@@ -1,13 +1,12 @@
 package com.example.daycare.controller;
 
 import com.example.daycare.Dto.AuthenticateRequest;
-import com.example.daycare.config.JwtUtil;
+import com.example.daycare.Dto.NannyDto;
+import com.example.daycare.Dto.RegisterRequest;
+import com.example.daycare.Service.AuthService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,29 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    public AuthController(AuthenticationManager authenticationManager,
-                         UserDetailsService userDetailsService,
-                         JwtUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<NannyDto> register(@Valid @RequestBody RegisterRequest request) {
+        return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authenticate(@RequestBody AuthenticateRequest authenticateRequest) {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authenticateRequest.getEmail(), authenticateRequest.getPass()));
-        } catch (AuthenticationException ex) {
-            return ResponseEntity.status(401).body("Invalid email or password");
-        }
-
-        final UserDetails userDetails =
-                userDetailsService.loadUserByUsername(authenticateRequest.getEmail());
-        return ResponseEntity.ok(jwtUtil.generateToken(userDetails));
+    public ResponseEntity<String> authenticate(@Valid @RequestBody AuthenticateRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
     }
 }
