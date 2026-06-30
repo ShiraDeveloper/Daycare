@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Node / React client ###
+client/node_modules/
+client/dist/
+client/.env
+client/.env.local
